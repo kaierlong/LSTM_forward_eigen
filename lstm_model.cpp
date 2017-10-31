@@ -198,30 +198,22 @@ void LstmModel::computeRecurrentLayer(int layer, int input_id)
 		int nCols1 = 4*hidden_size;
 		VectorXf input = embed.col(input_id);
 		VectorXf concats(4*hidden_size);
-		omp_set_num_threads(16);
 #pragma omp parallel
-    {
-        int num_threads = omp_get_num_threads();
-        int tid = omp_get_thread_num();
-        int n_per_thread = nCols1 / num_threads;
-        if ((n_per_thread * num_threads < nCols1)) n_per_thread++;
-        int start = tid * n_per_thread;
-        int len = n_per_thread;
-        if (tid + 1 == num_threads) len = nCols1 - start;
-        if(start < nCols1)
-					concats.segment(start, len) = W[layer].block(start, 0, len, embed_size+hidden_size) * (VectorXf(embed_size + hidden_size) << input, h[layer]).finished() + b[layer].segment(start, len);
-
-    }
-		// tensorflow version
+{
+        	int num_threads = omp_get_num_threads();
+        	int tid = omp_get_thread_num();
+        	int n_per_thread = nCols1 / num_threads;
+        	if ((n_per_thread * num_threads < nCols1)) n_per_thread++;
+        	int start = tid * n_per_thread;
+        	int len = n_per_thread;
+        	if (tid + 1 == num_threads) len = nCols1 - start;
+        	if(start < nCols1)
+			concats.segment(start, len) = W[layer].block(start, 0, len, embed_size+hidden_size) * (VectorXf(embed_size + hidden_size) << input, h[layer]).finished() + b[layer].segment(start, len);
+}
 		VectorXf i = concats.segment(0, hidden_size);
 		VectorXf j = concats.segment(hidden_size, hidden_size);
 		VectorXf f = concats.segment(hidden_size*2, hidden_size);
 		VectorXf o = concats.segment(hidden_size*3, hidden_size);
-		// keras version
-		//VectorXf i = concats.segment(0, hidden_size);
-		//VectorXf f = concats.segment(hidden_size, hidden_size);
-		//VectorXf j = concats.segment(hidden_size*2, hidden_size);
-		//VectorXf o = concats.segment(hidden_size*3, hidden_size);
 
 		c[layer] = c[layer].array() * f.unaryExpr(std::ptr_fun(my_sigmoid)).array() + i.unaryExpr(std::ptr_fun(my_sigmoid)).array() * j.unaryExpr(std::ptr_fun(my_tanh)).array();
 		h[layer] = c[layer].unaryExpr(std::ptr_fun(my_tanh)).array() * o.unaryExpr(std::ptr_fun(my_sigmoid)).array();

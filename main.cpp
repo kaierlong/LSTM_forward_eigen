@@ -10,7 +10,6 @@
 int main(int argc, char **argv)
 {
 	Eigen::initParallel();	
-	Eigen::setNbThreads(4);
 	std::string vocab_path = "vocab_file";
 	std::unordered_map<std::string,int> vocab2id;
 	std::vector<std::string> id2vocab;
@@ -32,7 +31,7 @@ int main(int argc, char **argv)
 		
 	std::ifstream file("small_data_file");
 	float total_time = 0;	
-	int total_iter = 10000;
+	int total_iter = 100;
 	int iter = 0;
 	std::vector<std::vector<int>> data = readBatchFromFile(file, vocab2id, max_input_len, batch_size);
 	std::vector<std::vector<std::pair<int, float>>> res(data.size());
@@ -40,6 +39,7 @@ int main(int argc, char **argv)
 	while(iter < total_iter) 
 	{
 		myPredictor->predict(data, res, topN);
+		/*
 		std::cout << "input: " << std::endl;
 		for(int i = 0; i < data[0].size(); i++)
 		{
@@ -50,6 +50,7 @@ int main(int argc, char **argv)
 		{
 			std::cout << i << "th answer: " << id2vocab[res[0][i].first] << " with prob: " << res[0][i].second << std::endl;
 		}
+		*/
 		iter++;
 	}
 	std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();

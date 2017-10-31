@@ -198,6 +198,7 @@ void LstmModel::computeRecurrentLayer(int layer, int input_id)
 		int nCols1 = 4*hidden_size;
 		VectorXf input = embed.col(input_id);
 		VectorXf concats(4*hidden_size);
+		omp_set_num_threads(16);
 #pragma omp parallel
 {
         	int num_threads = omp_get_num_threads();
@@ -247,6 +248,7 @@ void LstmModel::predict(std::vector<std::vector<int>>& data, std::vector<std::ve
 		int nCols3 = vocab_size;
 		RowVectorXf temp(vocab_size);
 		RowVectorXf logits_T = logits.transpose();
+		omp_set_num_threads(16);
 #pragma omp parallel
 {
         	int num_threads = omp_get_num_threads();

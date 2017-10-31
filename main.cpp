@@ -10,17 +10,12 @@
 int main(int argc, char **argv)
 {
 	Eigen::initParallel();	
-	//Eigen::setNbThreads(4);
+	Eigen::setNbThreads(4);
 	std::string vocab_path = "vocab_file";
 	std::unordered_map<std::string,int> vocab2id;
 	std::vector<std::string> id2vocab;
 	readVocab(vocab_path, vocab2id, id2vocab);
 	std::cout << "finish reading vocab_file" << std::endl;	
-	/*
-	std::string wordid2rc_path = "wordid2rc_file"
-	std::unordered_map<std::string, std::pair<int, int>> wordid2rc;
-	readWordid2rc(wordid2rc_path, wordid2rc)
-	*/
 	
 	// batch_size : # of sentences per batch
 	int batch_size = 1;
@@ -39,16 +34,12 @@ int main(int argc, char **argv)
 	float total_time = 0;	
 	int total_iter = 10000;
 	int iter = 0;
-	//printf("iter: %d\n", iter);
 	std::vector<std::vector<int>> data = readBatchFromFile(file, vocab2id, max_input_len, batch_size);
-	//std::vector<std::vector<int>> data = readBatchFromFile(file, vocab2id, wordid2rc, max_input_len, batch_size);
 	std::vector<std::vector<std::pair<int, float>>> res(data.size());
 	std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();	
 	while(iter < total_iter) 
 	{
-		
 		myPredictor->predict(data, res, topN);
-		/*
 		std::cout << "input: " << std::endl;
 		for(int i = 0; i < data[0].size(); i++)
 		{
@@ -59,7 +50,6 @@ int main(int argc, char **argv)
 		{
 			std::cout << i << "th answer: " << id2vocab[res[0][i].first] << " with prob: " << res[0][i].second << std::endl;
 		}
-		*/
 		iter++;
 	}
 	std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();

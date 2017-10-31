@@ -256,17 +256,17 @@ void LstmModel::predict(std::vector<std::vector<int>>& data, std::vector<std::ve
 		RowVectorXf temp(vocab_size);
 		RowVectorXf logits_T = logits.transpose();
 #pragma omp parallel
-    {
-        int num_threads = omp_get_num_threads();
-        int tid = omp_get_thread_num();
-        int n_per_thread = nCols3 / num_threads;
-        if ((n_per_thread * num_threads < nCols3)) n_per_thread++;
-        int start = tid * n_per_thread;
-        int len = n_per_thread;
-        if (tid + 1 == num_threads) len = nCols3 - start;
-        if(start < nCols3)
-					temp.segment(start, len) = logits_T * embed.block(0, start, embed_size, len);
-    }
+{
+        	int num_threads = omp_get_num_threads();
+        	int tid = omp_get_thread_num();
+        	int n_per_thread = nCols3 / num_threads;
+        	if ((n_per_thread * num_threads < nCols3)) n_per_thread++;
+        		int start = tid * n_per_thread;
+        	int len = n_per_thread;
+        	if (tid + 1 == num_threads) len = nCols3 - start;
+        	if(start < nCols3)
+			temp.segment(start, len) = logits_T * embed.block(0, start, embed_size, len);
+}
 		RowVectorXf probs = softmax(temp);
 		topK(probs, res[i], K);
 	}

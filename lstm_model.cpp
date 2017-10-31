@@ -19,15 +19,6 @@ float my_tanh(float a)
 	return tanhf(a);
 }
 
-VectorXf softmax(VectorXf& vec)
-{
-	float max = vec.maxCoeff();
-	vec = (vec.array() - max).exp();
-	float sum = vec.sum();
-	VectorXf res = vec.array() / sum;
-	return res;
-}
-
 RowVectorXf softmax(RowVectorXf& vec)
 {
 	float max = vec.maxCoeff();
@@ -51,18 +42,6 @@ void topK(RowVectorXf vec, std::vector<std::pair<int, float>>& res, int K)
 	for(int i = 0; i < K; i++)
 	{
 		RowVectorXf::Index max_ind;
-		float max_score = vec.maxCoeff(&max_ind);
-		vec(max_ind) = -FLT_MAX;
-		std::pair<int, float> p = std::make_pair(max_ind, max_score);
-		res.push_back(p);
-	}
-}
-
-void topK(VectorXf vec, std::vector<std::pair<int, float>>& res, int K)
-{
-	for(int i = 0; i < K; i++)
-	{
-		VectorXf::Index max_ind;
 		float max_score = vec.maxCoeff(&max_ind);
 		vec(max_ind) = -FLT_MAX;
 		std::pair<int, float> p = std::make_pair(max_ind, max_score);
